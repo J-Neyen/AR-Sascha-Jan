@@ -56,6 +56,10 @@ droppedTwoColums %>%
 droppedTwoColums %>% 
   ggplot(aes(x= view_count, y= categoryId)) + geom_point(data = droppedTwoColums %>% filter(categoryId == 10), color = "red") + geom_point(data = droppedTwoColums %>% filter(categoryId == 24), color = "green") + geom_point(data = droppedTwoColums %>% filter(categoryId == 17), color = "yellow")
 
+```
+
+
+```{r Json handling and getting the category name}
 # Now we can see that indeed. Those with the highest count are also those that are outstanding. But Nr. 17 seems to be quite low for the amount of view count and other categories that weren't posted that often have a higher view count. Is there something special about 10 and 24? And what are these categories anyways?
 
 # Getting just the title and id 
@@ -68,12 +72,13 @@ head(jsonClipped)
 merged <- merge(droppedTwoColums,jsonClipped, by.x ="categoryId", by.y="items.id")
 head(merged)
 
+# Which are the most viewed and posted categories?
 jsonCategoryFound <- subset(jsonClipped, jsonClipped$items.id == "10" | jsonClipped$items.id == "24")
 head(jsonCategoryFound)
-# Music / Entertainment are the ones with the most amount of views and videos uploaded.
+# Music / Entertainment are the ones!
+
 
 # -> Average views per video, for all -> boxplot?
 
 ```
 # What is so special about these two?
-
