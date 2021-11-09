@@ -1,0 +1,85 @@
+---
+title: "Data Science"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse) 
+library(dplyr)
+library(rjson)
+library(tidyjson)
+# Getting the file
+DE_youtube_trending_data <- read_csv("C:/Users/Sascha/Desktop/YoutubeDataSet/DE_youtube_trending_data.csv")
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+## The first dataset is the trending videos in germany.
+
+
+
+
+# What is the distribution of likes to view count
+# Dislikes to viewcount?
+# Finally what happens between likes and dislikes? How are they distributed
+```{r likes to viewcount}
+
+
+
+ggplot(data=DE_youtube_trending_data) + geom_point(mapping = aes(x= likes, y= view_count)) 
+
+ggplot(data=DE_youtube_trending_data) + geom_point(mapping = aes(x= dislikes, y= view_count))
+
+ggplot(data=DE_youtube_trending_data) + geom_point(mapping = aes(x= dislikes, y= likes))
+
+# These are really clustered, meaning they are quite a few exceptions. Noteable but to get results we need to look at the cluster more closely
+
+
+```
+
+#There are a few colums we dont need. Lets throw them out for now. And have a look at the categories.
+
+```{r lesssen the amount of columns}
+dontNeed <- names(DE_youtube_trending_data) %in% c("publishedAt","trending_date")
+
+droppedTwoColums <- DE_youtube_trending_data[!dontNeed]
+# head(droppedTwoColums)
+# Category in relation to view count? Anything interesting?
+
+ggplot(data=droppedTwoColums) + geom_point(mapping = aes(x= view_count, y= categoryId))
+
+# It looks like two Categories are rather outstanding.
+
+# Number of times a Category Appears
+droppedTwoColums %>%
+  count(categoryId) %>% 
+        arrange(desc(n))
+
+# Category 24 and 10 seem to be the most posted ones. Can we see these in the plot? Nr. 17 is the one with the third most posts
+droppedTwoColums %>% 
+  ggplot(aes(x= view_count, y= categoryId)) + geom_point(data = droppedTwoColums %>% filter(categoryId == 10), color = "red") + geom_point(data = droppedTwoColums %>% filter(categoryId == 24), color = "green") + geom_point(data = droppedTwoColums %>% filter(categoryId == 17), color = "yellow")
+# Now we can see that indeed. Those with the highest count are also those that are outstanding. But Nr. 17 seems to be quite low for the amount of view count and other categories that werent posted that often have a higher view count. Is there something special about 10 and 24? And what are these categories anyways?
+
+# Getting just the title and id 
+jsondata <- jsonlite::fromJSON("C:/Users/Sascha/Desktop/YoutubeDataSet/DE_category_id.json",simplifyDataFrame = TRUE,  flatten = TRUE) 
+jsonFrame <- as.data.frame(jsondata)
+jsonClipped <-jsonFrame %>% select("items.id","items.snippet.title")
+
+head(jsonClipped)
+
+# Join the two frames together
+merged <- merge(droppedTwoColums,jsonClipped, by.x ="categoryId", by.y="items.id")
+head(merged)
+
+jsonCategoryFound <- subset(jsonClipped, jsonClipped$items.id == "10" | jsonClipped$items.id == "24")
+head(jsonCategoryFound)
+# Music / Entertainment are the ones with the most amount of views and videos uploaded.
+
+# -> Average views per video, for all -> boxplot?
+
+```
+# What is so special about these two?
+
