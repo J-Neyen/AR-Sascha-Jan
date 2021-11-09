@@ -66,7 +66,7 @@ droppedTwoColums %>%
 jsondata <- jsonlite::fromJSON("YoutubeDataSet/DE_category_id.json",simplifyDataFrame = TRUE,  flatten = TRUE) 
 jsonFrame <- as.data.frame(jsondata)
 jsonClipped <-jsonFrame %>% select("items.id","items.snippet.title")
-head(jsonClipped)
+#head(jsonClipped)
 
 # Join the two frames together
 merged <- merge(droppedTwoColums,jsonClipped, by.x ="categoryId", by.y="items.id")
@@ -74,11 +74,25 @@ head(merged)
 
 # Which are the most viewed and posted categories?
 jsonCategoryFound <- subset(jsonClipped, jsonClipped$items.id == "10" | jsonClipped$items.id == "24")
-head(jsonCategoryFound)
+#head(jsonCategoryFound)
 # Music / Entertainment are the ones!
 
 
-# -> Average views per video, for all -> boxplot?
+# -> Average views per video, for all
+#maybe with errorbars(Standartabweichung)
+
+average <- merged %>% group_by(items.snippet.title) %>% summarise(
+  view_count = mean(view_count)
+) %>% select(items.snippet.title, view_count)
+
+
+ggplot(data = average, aes(x = reorder(items.snippet.title, -view_count), y =view_count/1000, fill = items.snippet.title)) + 
+  geom_bar(stat="identity") + 
+  theme(axis.title.x = element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  ylab("Views in 1000") +
+  guides(fill=guide_legend(title="Categories"))
 
 ```
 # What is so special about these two?
