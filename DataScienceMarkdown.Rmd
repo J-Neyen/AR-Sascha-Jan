@@ -76,8 +76,11 @@ head(merged)
 jsonCategoryFound <- subset(jsonClipped, jsonClipped$items.id == "10" | jsonClipped$items.id == "24")
 #head(jsonCategoryFound)
 # Music / Entertainment are the ones!
+```
 
+# What are the average views per category?
 
+```{r Average Views per category}
 # -> Average views per video, for all
 #maybe with errorbars(Standartabweichung)
 
@@ -95,4 +98,3 @@ ggplot(data = average, aes(x = reorder(items.snippet.title, -view_count), y =vie
   guides(fill=guide_legend(title="Categories"))
 
 ```
-# What is so special about these two?
