@@ -58,7 +58,7 @@ droppedTwoColums %>%
 
 ```
 
-
+# What are the Categories?
 ```{r Json handling and getting the category name}
 # Now we can see that indeed. Those with the highest count are also those that are outstanding. But Nr. 17 seems to be quite low for the amount of view count and other categories that weren't posted that often have a higher view count. Is there something special about 10 and 24? And what are these categories anyways?
 
