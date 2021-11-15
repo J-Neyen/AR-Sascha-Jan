@@ -98,4 +98,18 @@ ggplot(data = average, aes(x = reorder(items.snippet.title, -view_count), y =vie
   ylab("Views in 1 Mio") +
   guides(fill=guide_legend(title="Categories"))
 
+
+
+
+
+```
+
+```{r Function Count tags}
+
+countOfTags <- function(str1){
+  resultSplit <- strsplit(str1,split = "\\|")
+  return (sapply(resultSplit,length))
+}
+
+
 ```
