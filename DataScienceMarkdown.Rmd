@@ -89,12 +89,13 @@ average <- merged %>% group_by(items.snippet.title) %>% summarise(
 ) %>% select(items.snippet.title, view_count)
 
 
-ggplot(data = average, aes(x = reorder(items.snippet.title, -view_count), y =view_count/1000, fill = items.snippet.title)) + 
+ggplot(data = average, aes(x = reorder(items.snippet.title, -view_count), y =view_count/1000000, fill = items.snippet.title)) + 
   geom_bar(stat="identity") + 
+  scale_y_continuous(limits=c(0, 3), breaks=seq(0, 3, 0.2)) +
   theme(axis.title.x = element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank()) +
-  ylab("Views in 1000") +
+  ylab("Views in 1 Mio") +
   guides(fill=guide_legend(title="Categories"))
 
 ```
