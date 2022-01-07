@@ -3,6 +3,10 @@ title: "Data Science"
 output: html_document
 ---
 
+## The code setup
+
+First we need to load all the libraries that we use in our functions. We are also reading the source of our data, name it "DE_youtube_trending_data" and use it in future subsets. 
+
 ```{r setup, include=FALSE}
 library(tidyverse) 
 library(dplyr)
@@ -14,10 +18,13 @@ DE_youtube_trending_data <- read_csv("YoutubeDataSet/DE_youtube_trending_data.cs
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
 
+# The first dataset is the trending videos in germany.
 
-## The first dataset is the trending videos in germany.
+We would like to find out why videos are trending in germany. Its a big goal and therefore we start small.
+Firstly, to get a grasp of the most fundamental information we look at the distribution between likes, dislikes and viewcount.
+Since there are a lot of videos the graphs seem to be overflowing with datapoints. But it can be noticed that a lot of videos have similiar or close to similar like to dislike ratio. 
+Perhaps the category of the video plays a role.
 
 ```{r likes to viewcount}
 # What is the distribution of likes to view count
@@ -36,7 +43,12 @@ ggplot(data=DE_youtube_trending_data) + geom_point(mapping = aes(x= dislikes, y=
 
 ```
 
-#There are a few colums we dont need. Lets throw them out for now. And have a look at the categories.
+# Does the viewcount and category make a difference?
+
+Now we need to find out if the category can make a difference in the popularity of the video.
+At first we reduce the number of columns so we have less to compute.
+The first graph displays the videos of each category and the amount of views it has gotten. Two categories stand out, 24 and 10, since we can only see a rough outline we create a table. In this table we can see that category 24, 10 and 17 are the top three. Now we can underline these in the graph from before to find some differences.
+The biggest difference being category 17 to have a lot of trending videos but low viewcount. If the viewcount isn't a decisive factor then perhaps the category in combination with the tags could be it.
 
 ```{r lesssen the amount of columns}
 # Lesser Columns
@@ -58,7 +70,11 @@ droppedTwoColums %>%
 
 ```
 
-# What are the Categories?
+# Is there something special about category 10 and 24?
+
+Now we would like to know what these categories actually are. Therefore we import the json file that contains the mapping to the category details.
+First we get just the title and the id from the file and then merge it with our dataset so that each row contains the correct categor title.
+
 ```{r Json handling and getting the category name}
 # Now we can see that indeed. Those with the highest count are also those that are outstanding. But Nr. 17 seems to be quite low for the amount of view count and other categories that weren't posted that often have a higher view count. Is there something special about 10 and 24? And what are these categories anyways?
 
@@ -66,7 +82,10 @@ droppedTwoColums %>%
 jsondata <- jsonlite::fromJSON("YoutubeDataSet/DE_category_id.json",simplifyDataFrame = TRUE,  flatten = TRUE) 
 jsonFrame <- as.data.frame(jsondata)
 jsonClipped <-jsonFrame %>% select("items.id","items.snippet.title")
-#head(jsonClipped)
+# Actually showing the table of id and title
+jsonClipped
+
+## Now we can see that that 24 is entertainment, 10 is music and 17 is Sports.
 
 # Join the two frames together
 merged <- merge(droppedTwoColums,jsonClipped, by.x ="categoryId", by.y="items.id")
@@ -79,6 +98,8 @@ jsonCategoryFound <- subset(jsonClipped, jsonClipped$items.id == "10" | jsonClip
 ```
 
 # What are the average views per category?
+
+Since we have the categories added we can find out what the average viewcount is per category to get more insight of the relation to the viewcount.
 
 ```{r Average Views per category}
 # -> Average views per video, for all
@@ -104,12 +125,23 @@ ggplot(data = average, aes(x = reorder(items.snippet.title, -view_count), y =vie
 
 ```
 
+# Viewcount discovery
+Now we can see that music has a giant average viewcount compared to entertainment and sports. 
+
+# Are the tags the major influence?
+
+Since the viewcount isnt that much of an influence, maybe the amount of tags influnce the likely hood that a video appears in the trending page.
 ```{r Function Count tags}
 
+#unction Count tags
 countOfTags <- function(str1){
   resultSplit <- strsplit(str1,split = "\\|")
   return (sapply(resultSplit,length))
 }
 
+# Adding the count of tags into the dataframe
+merged$Count_Of_Tags <- countOfTags(merged$tags)
+head(merged)
+# Now we can see that the column Count_Of_Tags has been added to the frame and 
 
 ```
