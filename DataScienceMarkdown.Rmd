@@ -1,5 +1,7 @@
 ---
 title: "Data Science"
+author: "Neyenhyus, Jan; Ingemey, Sascha"
+date : "11.01.2022"
 output: html_document
 ---
 
@@ -145,3 +147,51 @@ head(merged)
 # Now we can see that the column Count_Of_Tags has been added to the frame and 
 
 ```
+
+
+# Regression by Sascha Ingemey
+```{r Linear Regression Ingemey,Sascha}
+#I would like to find the relationship between the number of tags and the view count.
+#If the viewcount is in relation to the amount of tags that a video has then it could be save to say that a video that is of lower value can become more "trendy" just by adjusting the description.
+# View count being our dependent variable on the independent variable of count of tag (amount of tags that the publisher added).
+
+linearmodel <- lm(merged$view_count ~merged$Count_Of_Tags, data = merged)
+summary(linearmodel) # this prints the summary of the regression
+```
+## Hypothesis
+H1 = There is a relationship between the amount of tags and the view count.
+H0 = There is no relationship between the amount of tags and the view count.
+
+###Reading the output
+When we observe the "Coefficients" part we can see that when a single tag is added to the video it should get around 2226703 views. But it is noteworthy to also look at the error value. This value lays at around 36226 which is quite a high number. Considering that the views per video vary widely it was to be expected to have a high error value. Another remark can be made regarding the actual amount of views that a video can get (seen in the first plots of this document). A lot of videos are scattered between 0 and 5.0e+07 views which is an incredibly high number, with this in mind the error value doesn't seem that big anymore. In my opinion this error values still in the OK range, if it were to go over 100 thousand it would have been a more major impact. Since the videos in this data frame were trending at some point it should be noted that for normal videos the error range would have been more than just major. 
+
+What is even more interesting is that for each tag added it would get less views, to be exact by the amount of 29508. Just with the previous value this also has an error range. The error value is 1610 which is way less than the previous one, but considering the ration of the two numbers ( estimate and error) the error seems to have a bigger influence. I would consider this error range to be more major than the previous one. But this would mean that with each tag more it would become closer to zero and even into the negative which isn't possible in the real world since a video cannot have a negative amount of views. This would also mean that the less tags it has the more views it should get which is surprising. But this also means that the trend is spurious. To predict what the future looks like we would need to also take auto-correclation into account but that is out of scope for this module.
+
+Looking at the Probability, the last two columns, we can see that the the probability of the H0 hypothesis being true is of significant value. It is marked with three asterisks meaning its value is very close to zero. With this I can claim that the relationship between these two variables is not random. There are of course many different variables that could have led to this outcome. One would need to consider the actual content of the video, the way it is presented, if its a category that many people are interested in, if there are tags that are just for meant to be a sort of filler that doesn't even apply to the video and if the content is in relation to newer events of the time. Checking all these variables would go beyond the scope of this analysis and therefore I would like to concentrate on the essence behind it. Can the amount of tags influence the views that a video can get. Obviously this data frame only consists of videos that got to the trending page and therefore all the videos that get published but didn't get so far are neglected. Considering that the amount of videos that are getting uploaded each minute is absolutely huge (Source: https://www.statista.com/statistics/259477/hours-of-video-uploaded-to-youtube-every-minute/ ; 500 hours of videos every minute in Feburary 2020) it wouldn't make for a meaningful analysis.
+
+Looking at the residual standard error we can see that the value of 5905000 with a degree of 83272 in freedom. Meaning that the deviation from the linear model is quite high and a major flaw. But that doesn't have to be that bad. It just shows that the either the deviation of the perfect linear model is quite high or it could be that the linear model is not the correct one to use. There are a lot of graphs that could possibly show the relation better. I am gonna assume that the latter is correct and therefore assume that the relationship between the two variables is not random and not linear. This is further more supported by the R-squared value which is 0.004019. This means that the graph only covers less than 0.005% of the data.
+
+## The Plot Command
+```{r Plot command Ingemey,Sascha}
+# The plot command generates four different plots that will be analyzed to make more assumptions,disprove or further support the ones we already made.
+plot(linearmodel)
+
+```
+### Residuals vs Fitted
+We can see the red line near the bottom of the graph is very closely to the dotted line indicating that there should be some sort of linearity. Since the data set has such a huge amount of data and its not abnormal for videos to have a much higher value or more precisely it is normal to have a lot of exceptions. This could explain the high error value of the linear model that was previously analysed.
+
+### Normal Q-Q
+With this plot we can see if the residuals are distributed normally. If this is the case then the data points would follow or be close to the dotted line. In the graph we can see that they follow the dotted line until around the 1 mark. After this point they slowly increase in value almost looking like an exponential graph. The fact that quite a lot follow the line at first but stray away later on shows that the residuals are not distributed normally.
+
+### Scale Location
+This graph is supposed to show that the residuals have equal variance along the regression line (the red line). It is visible that a lot of data points are close to the regression line but its also apparent that quite a lot of points stray away from the line. Especially at the right end it can be seen that a lot of points have a higher residual. The same distance from the line isn't apparent in this graph and therefore the Homoscedasticity has been disproved.
+
+### Residuals vs Leverage
+This graph will show if there is data that exerts a lot of influence on the model. Such data would be visible in the top right corner. Looking at the graph we can see that a lot of points are near the regression line which is located closely to the bottom and that quite a few high values are close to the left of the graph. Since there is not a single point near the top right it is safe to assume that there is no data that exerts a lot of influence in this model. 
+
+## Final thoughts
+To summarise there is a relationship between the two variables of view count and the amount of tags a video has. It is unclear how the trend would look like in the far future since the count of views regresses with each tag added. There are also a lot of other variables that could cause this for example the content of each video has a huge impact ( topic, setup, presentation etc.). At first i wanted to prove that there is a positive influence on the view count but this has shown that it has the opposite effect. With the help of the plot command i was also able to find out that there the data is not distributed normally, there is no Homoscedasticity and there are no data points that exert a lot of influence on our regression model.
+
+
+#Regression Done Ingemey,Sascha
+
