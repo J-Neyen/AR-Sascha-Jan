@@ -14,6 +14,7 @@ library(tidyverse)
 library(dplyr)
 library(rjson)
 library(tidyjson)
+options(scipen = 999)
 # Getting the file
 DE_youtube_trending_data <- read_csv("YoutubeDataSet/DE_youtube_trending_data.csv")
 
@@ -195,3 +196,61 @@ To summarise there is a relationship between the two variables of view count and
 
 #Regression Done Ingemey,Sascha
 
+
+#Regression by Jan Neyenhuys
+
+Total like and dislike count to comment count
+
+```{r}
+#Add likes to dislikes for the total number of ratings given
+merged$Total_Rating <- rowSums(cbind(merged$likes, merged$dislikes))
+head(merged)
+ratings <- filter(merged, merged$comments_disabled != TRUE & merged$ratings_disabled != TRUE)
+#exclude the exceptions in the model
+ratingsExclude <- filter(ratings, Total_Rating < 10000000 & Total_Rating > 10000 & comment_count > 1000 & comment_count < 1000000)
+
+
+```
+
+
+```{r}
+linearmodelRatings <- lm(ratings$Total_Rating ~ratings$comment_count, data = ratings)
+summary(linearmodelRatings)
+
+linearmodelRatingsExclude <- lm(ratingsExclude$Total_Rating ~ratingsExclude$comment_count, data = ratingsExclude)
+
+#ggplot(ratings, aes(x=comment_count, y=Total_Rating)) + geom_point() + geom_smooth(method=lm, level=0.95)
+```
+## Hypothesis
+H1 = There is a relationship between the amount of comments and the total amount of ratings given.
+H0 = There is no relationship between the amount of comments and the total amount of ratings given.
+
+### Reading the Output
+
+By looking at the "Coefficents" a video with just a single comment should have over 70.000 ratings, which is very unlikely. This number can be so high, because of the exceptions in the model, where a video has a lot of ratings and like no comments. First, i thought to exclude these exceptions to get a better fitting model, but then this wouldn't represent the given model correct. I only excluded the videos where the comments or the rating was disabled. The standard error on this one is with 890 comparatively low to the 70.000 ratings.
+
+With 3.15 ratings per additional comment you can probably say that almost 1/3 of the people that have given a rating also commented something on the video. The standard error with 0.009649 is also comparetively low to the 3.15 estimated.
+
+The statistical significance for the H0 is given by the very low probability that the H0 is true. With this you could say the amount of comments is related to the amount of ratings given. But there are a lot more variables to this relativity, for example the content of this video or the division of the rating between like and dislikes and so on, but i wanted to focus on the comments to ratings relationship, to include both cases, where there are a lot of likes and almost no dislikes and a lot of dislikes but not much likes.
+
+The residual standard error with 252600 is relatively high given the range of ratings between 15 and 16,13 million. This can be duo to the video with a lot of ratings but no comments like i said a the beginning. But i wouldn't say that this would be a big problem and either say that it shows the ratings not only depend on to the amount of comments on the video. That there are a lot of videos that differ from the model can be also said through the R-squared of 0.5677 which says that the model only covers roughly 60% of the data.
+
+
+```{r}
+plot(linearmodelRatings)
+plot(linearmodelRatingsExclude)
+```
+### Residuals vs Fitted
+The red line on the model with the exceptions you can see the red line goes almost linear to the top right this could be the cause of the of the exceptions. With an attempt to better show the model i set the range of an other linear model to be the amount of ratings between 10.000 and 10.000.000 and with the comments between 1.000 and 1.000.000. On this "Residuals vs Fitted" model you can see that the red line follows more the path of the dotted line. There for i would project the outcome of the model which exclude these exceptions onto the model with the exceptions and say that it would probably follow the dotted line much more if all these extreme exceptions are excluded.
+
+### Normal Q-Q
+In the "Normal Q-Q" you can see that most of the data is normally distributed. The beginning differs a lot a the start but then gets very close to the line. To the end it differs more and more. So you can say that the data is not normally distributed.
+
+### Scale-Location
+As you can see most of the data is a the beginning of the graph so and the more you go to the right the less variance shows the graph. You can also see that the variance differs much a the beginning looking a the incline of the red line. So the data shows a lot of variance which explains why the error value was so high. This is probably also of the video with a lot of like and no comments. By looking a the "Scale-Locating of the linear model without the exceptions you can more clearly see that the beginning has a lot of variance and to the end it gets to a linear incline.
+
+### Residuals vs Leverage
+By looking at this model you can clearly see a lot influential case at the bottom and some a the top. These are probably the exceptions that i mentioned. But you can also see the a lot of the data of the beginning is drifted to the top which also probably has a impact on the solution. By trying to better linear model i created the linear model with a range of total ratings and amount of comments, so these exceptions probably don't fall into the linear model. This can be seen by the second "Residuals vs Leverage" model where a lot less data is influential.
+
+### Final thoughts
+In the end you could say that there is a relation between the amount of comments and the amount of ratings, but as you can see there also a lot of different variables, when it comes to the amount of ratings, shown by the exceptions, and the huge error value. By this regression you can see that a lot more of variables come into play by the amount of ratings than just the comments.
